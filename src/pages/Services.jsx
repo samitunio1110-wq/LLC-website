@@ -1,109 +1,148 @@
 import { Link } from 'react-router-dom'
 import { useEffect } from 'react'
+import { useCountry } from '../context/CountryContext'
 
 const ServicesPage = () => {
+  const { countryData, selectedCountry } = useCountry()
+
+  const serviceDetails = {
+    US: [
+      {
+        title: 'US LLC Formation',
+        description: 'Complete setup of your Limited Liability Company in any US state.',
+        features: [
+          'Articles of Organization filing',
+          'Registered Agent service (1 year)',
+          'EIN (Employer Identification Number)',
+          'Operating Agreement template',
+          'US business banking guidance',
+          'State compliance notifications',
+          'Digital document delivery',
+          'Priority customer support'
+        ],
+        price: 'From $399',
+        popular: true,
+        icon: '🇺🇸'
+      },
+      {
+        title: 'EIN & Compliance',
+        description: 'Tax ID registration and ongoing compliance support.',
+        features: [
+          'EIN application with IRS',
+          'State tax registration',
+          'Annual report filings',
+          'Registered Agent renewal',
+          'Tax filing assistance',
+          'Compliance calendar',
+          'Document management',
+          'Dedicated account manager'
+        ],
+        price: 'From $299/year',
+        popular: false,
+        icon: '📋'
+      }
+    ],
+    Canada: [
+      {
+        title: 'Canada Corporation',
+        description: 'Federal or provincial incorporation with all registrations.',
+        features: [
+          'Articles of Incorporation',
+          'Registered Office service (1 year)',
+          'Business Number (BN) registration',
+          'GST/HST tax accounts setup',
+          'Minute book preparation',
+          'Corporate bylaws',
+          'Share certificates',
+          'Priority support'
+        ],
+        price: 'From $599',
+        popular: true,
+        icon: '🇨🇦'
+      },
+      {
+        title: 'BN & Tax Compliance',
+        description: 'Business Number and ongoing Canadian compliance.',
+        features: [
+          'BN application with CRA',
+          'GST/HST registration',
+          'Annual return filings',
+          'Registered Office renewal',
+          'Corporate tax assistance',
+          'Compliance calendar',
+          'Document management',
+          'Dedicated support'
+        ],
+        price: 'From $399/year',
+        popular: false,
+        icon: '📊'
+      }
+    ],
+    Turkey: [
+      {
+        title: 'Turkey Company Registration',
+        description: 'Complete Turkish company setup with trade registry.',
+        features: [
+          'Trade Registry registration',
+          'Tax Identification Number',
+          'Commercial book preparation',
+          'Company stamp creation',
+          'Legal representation',
+          'Bank account assistance',
+          'Document translation',
+          'Priority support'
+        ],
+        price: 'From €1,500',
+        popular: true,
+        icon: '🇹🇷'
+      },
+      {
+        title: 'Tax & Legal Compliance',
+        description: 'Ongoing Turkish tax and legal compliance.',
+        features: [
+          'VAT registration',
+          'Corporate tax filings',
+          'Social security registration',
+          'Legal representation renewal',
+          'Annual compliance',
+          'Document management',
+          'Turkish language support',
+          'Dedicated agent'
+        ],
+        price: 'From €499/year',
+        popular: false,
+        icon: '⚖️'
+      }
+    ]
+  }
+
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [])
 
-  const serviceDetails = [
-    {
-      title: 'US LLC Formation',
-      description: 'Complete setup of your Limited Liability Company in any US state.',
-      features: [
-        'Articles of Organization filing',
-        'Registered Agent service (1 year)',
-        'EIN (Employer Identification Number)',
-        'Operating Agreement template',
-        'Business banking guidance',
-        'State compliance notifications',
-        'Digital document delivery',
-        'Priority customer support'
-      ],
-      price: 'From $399',
-      popular: true,
-      icon: '🇺🇸'
-    },
-    {
-      title: 'Canada Corporation',
-      description: 'Federal or provincial incorporation with all necessary registrations.',
-      features: [
-        'Name search and reservation',
-        'Articles of Incorporation',
-        'Registered Office service',
-        'Business Number (BN) registration',
-        'GST/HST tax accounts setup',
-        'Minute book preparation',
-        'Corporate bylaws',
-        'Share certificates'
-      ],
-      price: 'From $599',
-      popular: false,
-      icon: '🇨🇦'
-    },
-    {
-      title: 'Compliance & Support',
-      description: 'Ongoing services to keep your business compliant and running smoothly.',
-      features: [
-        'Annual report filings',
-        'Registered Agent renewal',
-        'Tax filing assistance',
-        'Bookkeeping support',
-        'Corporate updates',
-        'Document management',
-        'Compliance calendar',
-        'Dedicated account manager'
-      ],
-      price: 'From $299/year',
-      popular: false,
-      icon: '📋'
-    }
-  ]
-
-  const additionalServices = [
-    {
-      title: 'Bank Account Setup',
-      icon: '🏦',
-      items: ['US Business Bank Account', 'Canadian Business Bank Account', 'Mercury, Novo, Wise', 'Payment Processor Setup'],
-      price: '$199'
-    },
-    {
-      title: 'Tax Services',
-      icon: '📊',
-      items: ['EIN/BN Registration', 'Sales Tax Registration', 'Tax Consultation', 'Annual Tax Filing'],
-      price: '$299'
-    },
-    {
-      title: 'Legal Documents',
-      icon: '📑',
-      items: ['Operating Agreements', 'Bylaws & Resolutions', 'Contracts & Agreements', 'Document Notarization'],
-      price: '$149'
-    },
-    {
-      title: 'Business Growth',
-      icon: '🚀',
-      items: ['Virtual Office', 'Mail Forwarding', 'Phone Services', 'Business Credit Building'],
-      price: '$99/month'
-    }
-  ]
+  // Get services for current country or default to US
+  const currentServices = serviceDetails[selectedCountry] || serviceDetails.US
 
   return (
     <div className="pt-24 pb-16 px-4 animate-fade-in">
       <div className="container mx-auto max-w-7xl">
         {/* Hero Section */}
         <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 text-primary">Our Services</h1>
-          <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-            Comprehensive solutions for international entrepreneurs looking to establish and grow their business in North America
-          </p>
-          <div className="inline-flex items-center bg-primary/10 px-6 py-3 rounded-full">
-            <span className="text-primary font-semibold">🌍 Serving clients in 100+ countries</span>
+          <div className="inline-flex items-center bg-primary/10 px-6 py-3 rounded-full mb-6">
+            <span className="text-primary font-semibold">{countryData?.flag || '🇺🇸'} {countryData?.name || 'United States'} Services</span>
           </div>
+          
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 text-primary">
+            Our {countryData?.name || 'United States'} Services
+          </h1>
+          <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+            Comprehensive solutions for international entrepreneurs looking to establish and grow their business in {countryData?.name || 'United States'}
+          </p>
         </div>
 
         {/* Main Services */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
-          {serviceDetails.map((service, index) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20">
+          {currentServices.map((service, index) => (
             <div 
               key={index} 
               className={`bg-white rounded-2xl shadow-xl overflow-hidden relative hover-card ${
@@ -152,53 +191,29 @@ const ServicesPage = () => {
           ))}
         </div>
 
-        {/* Additional Services */}
-        <div className="mb-16">
-          <h2 className="text-3xl font-bold text-center mb-12 text-primary">Additional Business Services</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {additionalServices.map((service, index) => (
-              <div key={index} className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-card hover-card border border-gray-100">
-                <div className="text-4xl mb-4">{service.icon}</div>
-                <h3 className="text-lg font-bold mb-4 text-primary">{service.title}</h3>
-                <div className="text-2xl font-bold text-accent mb-4">{service.price}</div>
-                <ul className="space-y-2 mb-6">
-                  {service.items.map((item, idx) => (
-                    <li key={idx} className="flex items-center text-gray-600 text-sm">
-                      <svg className="w-4 h-4 text-accent mr-2" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                      </svg>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-                <button className="w-full text-primary border border-primary py-2 rounded-lg font-semibold hover:bg-primary/5 transition-colors">
-                  Add Service
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* CTA Section */}
         <div className="bg-gradient-to-r from-primary to-secondary rounded-2xl p-8 md:p-12 text-white">
           <div className="max-w-4xl mx-auto">
             <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
               <div>
-                <h2 className="text-2xl md:text-3xl font-bold mb-4">Ready to Launch Your North American Business?</h2>
-                <p className="text-gray-200">Join thousands of international entrepreneurs who have successfully established their US or Canadian companies with our help.</p>
+                <div className="flex items-center mb-4">
+                  <div className="text-2xl mr-3">{countryData?.flag || '🇺🇸'}</div>
+                  <h2 className="text-2xl md:text-3xl font-bold">Ready to Launch Your {countryData?.name || 'United States'} Business?</h2>
+                </div>
+                <p className="text-gray-200">Join thousands of international entrepreneurs who have successfully established their companies in {countryData?.name || 'United States'} with our help.</p>
               </div>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
                   to="/contact"
                   className="bg-white text-primary px-8 py-3 rounded-lg font-bold hover:bg-gray-100 transition-all duration-300 text-center"
                 >
-                  Start Your Application
+                  Start in {countryData?.name || 'United States'}
                 </Link>
                 <Link
                   to="/pricing"
                   className="border-2 border-white text-white px-8 py-3 rounded-lg font-bold hover:bg-white/10 transition-all duration-300 text-center"
                 >
-                  View Pricing Details
+                  View Pricing
                 </Link>
               </div>
             </div>

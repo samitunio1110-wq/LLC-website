@@ -1,90 +1,141 @@
+import { useCountry } from "../context/CountryContext"
+
 const Services = () => {
+  const { selectedCountry, countryData } = useCountry()
+
+  const formationText = {
+    Canada: {
+      flag: "🇨🇦",
+      title: "Canada Company Formation",
+      points: [
+        "Easy, low-cost registration with strong reputation.",
+        "Access to Stripe, PayPal, major banks, and NAFTA benefits.",
+        "Favourable taxes for small businesses + simple compliance."
+      ]
+    },
+    Turkey: {
+      flag: "🇹🇷",
+      title: "Turkey Company Formation",
+      points: [
+        "Very low operational costs and affordable taxes.",
+        "Strategic hub between the EU, Middle East, and Asia.",
+        "Great for remote businesses with growing tech ecosystem."
+      ]
+    },
+    US: {
+      flag: "🇺🇸",
+      title: "US LLC Formation",
+      points: [
+        "Highest global trust, ideal for SaaS & digital products.",
+        "Access to U.S. payment processors & global tools.",
+        "Simple LLC structure, flexible taxes & strong legal protection."
+      ]
+    }
+  }
+
+  const selected = formationText[selectedCountry] || formationText["US"]
+
   const services = [
     {
-      title: 'Company Formation',
-      description: 'Fast, compliant LLC or corporation setup in the US or Canada.',
-      icon: '🏢',
-      features: ['State/Province Filing', 'Document Preparation', 'Name Reservation', 'Legal Structure']
+      icon: "🧾",
+      title: "Tax Compliance",
+      description: "Focus on growing your business! Let us take care of taxes.",
+      features: ["State Filing", "Annual Reports", "Bookkeeping Services"]
     },
     {
-      title: 'EIN/BN Registration',
-      description: 'We handle government filings so you don’t have to.',
-      icon: '📋',
-      features: ['Tax ID Application', 'Business Number', 'Government Liaison', 'Documentation']
+      icon: "🏦",
+      title: "International Banking",
+      description: "Open global payment gateways and banking solutions.",
+      features: [
+        "Access to global banks",
+        "Support for major processors",
+        "Multi-currency accounts"
+      ]
     },
     {
-      title: 'Registered Agent Services',
-      description: 'Reliable agents in every US state + Canadian provinces.',
-      icon: '🤝',
-      features: ['Legal Address', 'Document Reception', 'Compliance Alerts', 'Year-round Support']
+      icon: "🔍",
+      title: "100% Transparency",
+      description: "No hidden fees. Full visibility on processes.",
+      features: ["Clear pricing", "No surprises", "Timeline visibility"]
     },
     {
-      title: 'Banking & Payments',
-      description: 'Guidance for opening online business accounts and payment processors.',
-      icon: '💳',
-      features: ['Account Setup', 'Payment Gateways', 'International Banking', 'Multi-currency']
+      icon: "⏱️",
+      title: "Timely Updates",
+      description: "Stay informed about every step.",
+      features: [
+        "Regular progress updates",
+        "Fast response times",
+        "Real-time tracking"
+      ]
     },
     {
-      title: 'Tax & Compliance Support',
-      description: 'Annual reports, bookkeeping, tax filings, and renewals.',
-      icon: '📊',
-      features: ['Annual Reports', 'Tax Filing', 'Bookkeeping', 'Compliance Calendar']
-    },
-    {
-      title: 'Documents & Dashboard',
-      description: 'Access all your company documents in one secure place.',
-      icon: '📁',
-      features: ['Secure Storage', 'Digital Access', 'Document Management', 'Real-time Updates']
+      icon: "📞",
+      title: "24/7 Client Support",
+      description: "We are always here to help.",
+      features: [
+        "Round-the-clock availability",
+        "Instant assistance",
+        "Dedicated support team"
+      ]
     }
   ]
 
   return (
-    <section className="py-16 md:py-24 px-4 bg-gradient-to-b from-gray-50 to-white">
-      <div className="container mx-auto max-w-7xl">
-        <div className="text-center mb-12 md:mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-primary">Everything You Need to Launch & Operate</h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Comprehensive services designed for international entrepreneurs and remote businesses
+    <section className="py-20 px-4 bg-gradient-to-b from-gray-50 to-white">
+      <div className="max-w-7xl mx-auto">
+
+        {/* Section Header */}
+        <div className="text-center mb-16">
+          <h2 className="text-4xl font-bold text-primary mb-4">
+            Everything You Need for {countryData?.name || "United States"}
+          </h2>
+          <p className="text-gray-600 text-lg max-w-3xl mx-auto">
+            Comprehensive services designed for international entrepreneurs.
           </p>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {services.map((service, index) => (
-            <div 
-              key={index} 
-              className="bg-white rounded-2xl p-8 shadow-card hover-card animate-fade-in"
-              style={{ animationDelay: `${index * 0.1}s` }}
+
+        {/* Country Formation Highlight */}
+        <div className="bg-white rounded-2xl shadow-xl p-10 mb-16 border border-gray-200 hover:shadow-2xl transition-all duration-300">
+          <div className="text-5xl mb-4">{selected.flag}</div>
+          <h3 className="text-2xl font-bold text-primary mb-6">{selected.title}</h3>
+
+          <ul className="space-y-3">
+            {selected.points.map((p, idx) => (
+              <li key={idx} className="flex items-start text-gray-700">
+                <span className="text-green-600 text-xl mr-3">✔</span>
+                <span className="text-lg">{p}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Premium Service Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+          {services.map((s, idx) => (
+            <div
+              key={idx}
+              className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
             >
-              <div className="text-5xl mb-6">{service.icon}</div>
-              <h3 className="text-xl font-bold mb-4 text-primary">{service.title}</h3>
-              <p className="text-gray-600 mb-6">{service.description}</p>
-              
-              <div className="space-y-3">
-                {service.features.map((feature, idx) => (
-                  <div key={idx} className="flex items-center text-gray-700">
-                    <svg className="w-5 h-5 text-accent mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                    <span className="text-sm">{feature}</span>
-                  </div>
+              <div className="text-5xl mb-6">{s.icon}</div>
+
+              <h3 className="text-xl font-semibold text-primary mb-3">
+                {s.title}
+              </h3>
+
+              <p className="text-gray-600 mb-6">{s.description}</p>
+
+              <ul className="space-y-2">
+                {s.features.map((f, i) => (
+                  <li key={i} className="flex items-center text-gray-700">
+                    <span className="text-accent text-lg mr-3">✔</span>
+                    {f}
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
           ))}
         </div>
-        
-        <div className="mt-16 text-center">
-          <div className="inline-flex items-center justify-center space-x-4 bg-primary/10 px-6 py-4 rounded-full">
-            <span className="text-primary font-semibold">🎯 Perfect For:</span>
-            <div className="flex flex-wrap justify-center gap-3">
-              {['Freelancers', 'E-commerce', 'SaaS Startups', 'Agencies', 'Consultants', 'Creators'].map((item, idx) => (
-                <span key={idx} className="bg-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm">
-                  {item}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
+
       </div>
     </section>
   )

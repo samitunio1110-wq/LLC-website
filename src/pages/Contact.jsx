@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { useEffect } from 'react'
+import { submitContactForm } from '../utils/api'
 
 const Contact = () => {
   useEffect(() => {
@@ -17,7 +17,10 @@ const Contact = () => {
     message: ''
   })
 
-  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [errors, setErrors] = useState({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitStatus, setSubmitStatus] = useState(null) // null, 'success', 'error'
+  const [submitMessage, setSubmitMessage] = useState('')
 
   const jurisdictions = [
     'Wyoming LLC',
@@ -41,21 +44,84 @@ const Contact = () => {
     'Other'
   ]
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    })
+  // Validation function
+  const validateForm = () => {
+    const newErrors = {}
+    
+    // Name validation
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name is required'
+    } else if (formData.name.trim().length < 2) {
+      newErrors.name = 'Name must be at least 2 characters'
+    }
+
+    // Email validation
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required'
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address'
+    }
+
+    // Phone validation (optional but validate format if provided)
+    if (formData.phone && !/^[\d\s\-\+\(\)]+$/.test(formData.phone)) {
+      newErrors.phone = 'Please enter a valid phone number'
+    }
+
+    // Country validation
+    if (!formData.country.trim()) {
+      newErrors.country = 'Country is required'
+    }
+
+    // Business type validation
+    if (!formData.businessType) {
+      newErrors.businessType = 'Please select a business type'
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    // Simulate form submission
-    console.log('Form submitted:', formData)
-    setIsSubmitted(true)
+  const handleChange = (e) => {
+    const { name, value } = e.target
     
-    // Reset form after 3 seconds
-    setTimeout(() => {
+    // Clear error for this field when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }))
+    }
+    
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    
+    // Validate form
+    if (!validateForm()) {
+      // Scroll to first error
+      const firstError = Object.keys(errors)[0]
+      const element = document.querySelector(`[name="${firstError}"]`)
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        element.focus()
+      }
+      return
+    }
+
+    setIsSubmitting(true)
+    setSubmitStatus(null)
+    setSubmitMessage('')
+
+    try {
+      // Send data to backend using the API helper
+      const data = await submitContactForm(formData)
+
+      setSubmitStatus('success')
+      setSubmitMessage(data.message || 'Thank you! Your application has been submitted successfully.')
+      
+      // Reset form
       setFormData({
         name: '',
         email: '',
@@ -65,8 +131,36 @@ const Contact = () => {
         jurisdiction: '',
         message: ''
       })
-      setIsSubmitted(false)
-    }, 3000)
+      setErrors({})
+      
+      // Auto hide success message after 8 seconds
+      setTimeout(() => {
+        setSubmitStatus(null)
+        setSubmitMessage('')
+      }, 8000)
+      
+    } catch (error) {
+      console.error('Form submission error:', error)
+      setSubmitStatus('error')
+      setSubmitMessage(error.message || 'Something went wrong. Please try again.')
+      
+      // Handle validation errors from backend
+      if (error.errors) {
+        const backendErrors = {}
+        error.errors.forEach(err => {
+          const field = err.toLowerCase().includes('email') ? 'email' :
+                       err.toLowerCase().includes('name') ? 'name' :
+                       err.toLowerCase().includes('country') ? 'country' :
+                       err.toLowerCase().includes('business') ? 'businessType' : null
+          if (field) {
+            backendErrors[field] = err
+          }
+        })
+        setErrors(prev => ({ ...prev, ...backendErrors }))
+      }
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -83,6 +177,38 @@ const Contact = () => {
           </div>
         </div>
 
+        {/* Success/Error Messages */}
+        {submitStatus && (
+          <div className={`mb-8 rounded-xl p-6 border ${
+            submitStatus === 'success' 
+              ? 'bg-green-50 border-green-200 text-green-800' 
+              : 'bg-red-50 border-red-200 text-red-800'
+          }`}>
+            <div className="flex items-center">
+              <div className={`mr-4 text-2xl ${
+                submitStatus === 'success' ? 'text-green-500' : 'text-red-500'
+              }`}>
+                {submitStatus === 'success' ? '✅' : '❌'}
+              </div>
+              <div>
+                <h3 className="font-bold text-lg mb-1">
+                  {submitStatus === 'success' ? 'Success!' : 'Error'}
+                </h3>
+                <p>{submitMessage}</p>
+              </div>
+              <button
+                onClick={() => {
+                  setSubmitStatus(null)
+                  setSubmitMessage('')
+                }}
+                className="ml-auto text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Contact Form */}
           <div>
@@ -97,121 +223,186 @@ const Contact = () => {
                 </div>
               </div>
               
-              {isSubmitted ? (
-                <div className="bg-green-50 border border-green-200 rounded-xl p-8 text-center">
-                  <div className="text-5xl mb-4">🎉</div>
-                  <h3 className="text-xl font-bold text-green-800 mb-2">Thank You!</h3>
-                  <p className="text-green-700 mb-4">Your application has been submitted successfully.</p>
-                  <p className="text-green-600">Our team will contact you within 4 hours to discuss next steps.</p>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-gray-700 mb-2 font-semibold">Full Name *</label>
-                      <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                        placeholder="Enter your full name"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-gray-700 mb-2 font-semibold">Email Address *</label>
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                        placeholder="Enter your email"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-gray-700 mb-2 font-semibold">Phone Number</label>
-                      <input
-                        type="tel"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                        placeholder="Optional"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-gray-700 mb-2 font-semibold">Country of Residence *</label>
-                      <input
-                        type="text"
-                        name="country"
-                        value={formData.country}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                        placeholder="e.g., Germany, India, Brazil"
-                      />
-                    </div>
-                  </div>
-
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-gray-700 mb-2 font-semibold">Business Type *</label>
-                    <select
-                      name="businessType"
-                      value={formData.businessType}
+                    <label className="block text-gray-700 mb-2 font-semibold">
+                      Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
                       onChange={handleChange}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white"
-                    >
-                      <option value="">Select business type</option>
-                      {businessTypes.map((type, index) => (
-                        <option key={index} value={type}>{type}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-gray-700 mb-2 font-semibold">Preferred Jurisdiction</label>
-                    <select
-                      name="jurisdiction"
-                      value={formData.jurisdiction}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white"
-                    >
-                      <option value="">Select jurisdiction (optional)</option>
-                      {jurisdictions.map((jurisdiction, index) => (
-                        <option key={index} value={jurisdiction}>{jurisdiction}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-gray-700 mb-2 font-semibold">Additional Information</label>
-                    <textarea
-                      name="message"
-                      value={formData.message}
-                      onChange={handleChange}
-                      rows="5"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                      placeholder="Tell us about your business goals, timeline, or any specific requirements..."
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all ${
+                        errors.name ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                      }`}
+                      placeholder="Enter your full name"
+                      disabled={isSubmitting}
                     />
+                    {errors.name && (
+                      <p className="mt-2 text-sm text-red-600 flex items-center">
+                        <span className="mr-1">⚠️</span> {errors.name}
+                      </p>
+                    )}
                   </div>
 
-                  <button
-                    type="submit"
-                    className="w-full bg-primary text-white py-4 rounded-lg font-bold hover:bg-secondary transition-all duration-300 shadow-lg hover:shadow-xl"
+                  <div>
+                    <label className="block text-gray-700 mb-2 font-semibold">
+                      Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all ${
+                        errors.email ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                      }`}
+                      placeholder="Enter your email"
+                      disabled={isSubmitting}
+                    />
+                    {errors.email && (
+                      <p className="mt-2 text-sm text-red-600 flex items-center">
+                        <span className="mr-1">⚠️</span> {errors.email}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-gray-700 mb-2 font-semibold">
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all ${
+                        errors.phone ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                      }`}
+                      placeholder="Optional"
+                      disabled={isSubmitting}
+                    />
+                    {errors.phone && (
+                      <p className="mt-2 text-sm text-red-600 flex items-center">
+                        <span className="mr-1">⚠️</span> {errors.phone}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-700 mb-2 font-semibold">
+                      Country of Residence *
+                    </label>
+                    <input
+                      type="text"
+                      name="country"
+                      value={formData.country}
+                      onChange={handleChange}
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all ${
+                        errors.country ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                      }`}
+                      placeholder="e.g., Germany, India, Brazil"
+                      disabled={isSubmitting}
+                    />
+                    {errors.country && (
+                      <p className="mt-2 text-sm text-red-600 flex items-center">
+                        <span className="mr-1">⚠️</span> {errors.country}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-gray-700 mb-2 font-semibold">
+                    Business Type *
+                  </label>
+                  <select
+                    name="businessType"
+                    value={formData.businessType}
+                    onChange={handleChange}
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white ${
+                      errors.businessType ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                    }`}
+                    disabled={isSubmitting}
                   >
-                    Submit Application
-                  </button>
-                </form>
-              )}
+                    <option value="">Select business type</option>
+                    {businessTypes.map((type, index) => (
+                      <option key={index} value={type}>{type}</option>
+                    ))}
+                  </select>
+                  {errors.businessType && (
+                    <p className="mt-2 text-sm text-red-600 flex items-center">
+                      <span className="mr-1">⚠️</span> {errors.businessType}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-gray-700 mb-2 font-semibold">
+                    Preferred Jurisdiction
+                  </label>
+                  <select
+                    name="jurisdiction"
+                    value={formData.jurisdiction}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white"
+                    disabled={isSubmitting}
+                  >
+                    <option value="">Select jurisdiction (optional)</option>
+                    {jurisdictions.map((jurisdiction, index) => (
+                      <option key={index} value={jurisdiction}>{jurisdiction}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-gray-700 mb-2 font-semibold">
+                    Additional Information
+                  </label>
+                  <textarea
+                    name="message"
+                    value={formData.message}
+                    onChange={handleChange}
+                    rows="5"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                    placeholder="Tell us about your business goals, timeline, or any specific requirements..."
+                    disabled={isSubmitting}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className={`w-full text-white py-4 rounded-lg font-bold transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center ${
+                    isSubmitting 
+                      ? 'bg-gray-400 cursor-not-allowed' 
+                      : 'bg-primary hover:bg-secondary'
+                  }`}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Submitting...
+                    </>
+                  ) : (
+                    'Submit Application'
+                  )}
+                </button>
+
+                <p className="text-sm text-gray-500 text-center">
+                  By submitting this form, you agree to our{' '}
+                  <Link to="#" className="text-primary hover:underline">Privacy Policy</Link>
+                  {' '}and{' '}
+                  <Link to="#" className="text-primary hover:underline">Terms of Service</Link>.
+                </p>
+              </form>
             </div>
           </div>
 

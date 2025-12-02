@@ -1,95 +1,151 @@
 import { Link } from 'react-router-dom'
 import { useEffect } from 'react'
+import { useCountry } from '../context/CountryContext'
 
 const Pricing = () => {
+  const { countryData, selectedCountry } = useCountry()
+
+  const plans = {
+    US: [
+      {
+        name: 'US LLC Basic',
+        price: '$399',
+        period: 'one-time',
+        description: 'Perfect for freelancers and solo entrepreneurs',
+        features: [
+          'US LLC Formation (Wyoming/Delaware)',
+          'Articles of Organization',
+          'Registered Agent (1 year)',
+          'EIN Application',
+          'Operating Agreement Template',
+          'Basic Banking Guidance',
+          'Email Support',
+          '3-5 Business Days Processing'
+        ],
+        highlighted: false,
+        icon: '🎯'
+      },
+      {
+        name: 'US LLC Professional',
+        price: '$699',
+        period: 'one-time',
+        description: 'Ideal for growing businesses and e-commerce',
+        features: [
+          'Everything in Basic +',
+          'Priority Processing (2-3 days)',
+          'Bank Account Setup Assistance',
+          'Payment Gateway Setup (Stripe/PayPal)',
+          'Phone & Email Support',
+          'Compliance Calendar',
+          'Tax Consultation (30 min)',
+          'Document Notarization'
+        ],
+        highlighted: true,
+        icon: '🚀'
+      }
+    ],
+    Canada: [
+      {
+        name: 'Canada Corp Basic',
+        price: '$599',
+        period: 'one-time',
+        description: 'Perfect for startups and consultants',
+        features: [
+          'Canada Corporation (Federal/Provincial)',
+          'Articles of Incorporation',
+          'Registered Office (1 year)',
+          'Business Number Registration',
+          'Corporate Bylaws',
+          'Basic Banking Guidance',
+          'Email Support',
+          '5-7 Business Days Processing'
+        ],
+        highlighted: false,
+        icon: '🎯'
+      },
+      {
+        name: 'Canada Corp Professional',
+        price: '$899',
+        period: 'one-time',
+        description: 'Ideal for growing Canadian businesses',
+        features: [
+          'Everything in Basic +',
+          'Priority Processing (3-4 days)',
+          'Bank Account Setup Assistance',
+          'GST/HST Registration',
+          'Phone & Email Support',
+          'Compliance Calendar',
+          'Tax Consultation (30 min)',
+          'Corporate Kit'
+        ],
+        highlighted: true,
+        icon: '🚀'
+      }
+    ],
+    Turkey: [
+      {
+        name: 'Turkey Company Basic',
+        price: '€1,500',
+        period: 'one-time',
+        description: 'Perfect for international traders',
+        features: [
+          'Turkey Company Registration',
+          'Trade Registry Registration',
+          'Tax Identification Number',
+          'Commercial Book',
+          'Company Stamp',
+          'Basic Banking Guidance',
+          'Email Support',
+          '7-10 Business Days Processing'
+        ],
+        highlighted: false,
+        icon: '🎯'
+      },
+      {
+        name: 'Turkey Company Professional',
+        price: '€2,500',
+        period: 'one-time',
+        description: 'Ideal for established businesses in Turkey',
+        features: [
+          'Everything in Basic +',
+          'Priority Processing (5-7 days)',
+          'Bank Account Setup Assistance',
+          'VAT Registration',
+          'Legal Representation (1 year)',
+          'Document Translation',
+          'Phone & Email Support',
+          'Compliance Calendar'
+        ],
+        highlighted: true,
+        icon: '🚀'
+      }
+    ]
+  }
+
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [])
-
-  const plans = [
-    {
-      name: 'Starter',
-      price: '$399',
-      period: 'one-time',
-      description: 'Perfect for freelancers and solo entrepreneurs',
-      features: [
-        'US LLC Formation (Wyoming/Delaware)',
-        'Articles of Organization',
-        'Registered Agent (1 year)',
-        'EIN Application',
-        'Operating Agreement Template',
-        'Basic Banking Guidance',
-        'Email Support',
-        '3-5 Business Days Processing'
-      ],
-      highlighted: false,
-      icon: '🎯'
-    },
-    {
-      name: 'Professional',
-      price: '$699',
-      period: 'one-time',
-      description: 'Ideal for growing businesses and e-commerce',
-      features: [
-        'Everything in Starter +',
-        'Canada Corporation Option',
-        'Business Number Registration',
-        'GST/HST Setup (Canada)',
-        'Priority Processing (2-3 days)',
-        'Bank Account Setup Assistance',
-        'Payment Gateway Setup (Stripe/PayPal)',
-        'Phone & Email Support',
-        'Compliance Calendar'
-      ],
-      highlighted: true,
-      icon: '🚀'
-    },
-    {
-      name: 'Enterprise',
-      price: '$999',
-      period: 'one-time',
-      description: 'Complete solution for agencies and startups',
-      features: [
-        'Everything in Professional +',
-        'Multi-state/Province Registration',
-        'Annual Compliance Package',
-        'Bookkeeping Support (1 year)',
-        'Tax Filing Assistance',
-        'Dedicated Account Manager',
-        '24/7 Priority Support',
-        'Document Notarization',
-        'Corporate Kit',
-        'Virtual Office Setup'
-      ],
-      highlighted: false,
-      icon: '🏢'
-    }
-  ]
-
-  const addons = [
-    { name: 'Annual Compliance Package', price: '$299/year', description: 'Annual reports, registered agent renewal, state filings' },
-    { name: 'Bank Account Opening', price: '$199', description: 'Full assistance with US/Canadian business bank account' },
-    { name: 'Bookkeeping Setup', price: '$399', description: 'Quarterly bookkeeping and financial reports' },
-    { name: 'Tax Filing Support', price: '$499/year', description: 'Annual tax return preparation and filing' }
-  ]
 
   return (
     <div className="pt-24 pb-16 px-4 animate-fade-in">
       <div className="container mx-auto max-w-7xl">
         {/* Header */}
         <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 text-primary">Transparent Pricing</h1>
-          <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-            No hidden fees. Clear packages for startups, solopreneurs, and growing teams.
-          </p>
-          <div className="inline-flex items-center bg-primary/10 px-6 py-3 rounded-full">
-            <span className="text-primary font-semibold">💰 All-inclusive pricing • No surprises</span>
+          <div className="inline-flex items-center bg-primary/10 px-6 py-3 rounded-full mb-6">
+            <span className="text-primary font-semibold">{countryData.flag} {countryData.name} Pricing</span>
           </div>
+          
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 text-primary">
+            {countryData.name} Pricing
+          </h1>
+          <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+            Transparent pricing for your {countryData.name} company formation
+          </p>
         </div>
 
         {/* Pricing Plans */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
-          {plans.map((plan, index) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20">
+          {plans[selectedCountry]?.map((plan, index) => (
             <div 
               key={index} 
               className={`rounded-2xl overflow-hidden relative ${
@@ -144,59 +200,12 @@ const Pricing = () => {
           ))}
         </div>
 
-        {/* Additional Services */}
-        <div className="bg-gray-50 rounded-2xl p-8 mb-16">
-          <h2 className="text-2xl font-bold mb-8 text-primary text-center">Additional Services</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {addons.map((addon, index) => (
-              <div key={index} className="bg-white rounded-xl p-6 shadow-card hover-card">
-                <h3 className="font-bold text-primary mb-2">{addon.name}</h3>
-                <div className="text-2xl font-bold text-accent mb-3">{addon.price}</div>
-                <p className="text-gray-600 text-sm mb-4">{addon.description}</p>
-                <button className="w-full text-primary border border-primary py-2 rounded-lg font-semibold hover:bg-primary/5 transition-colors">
-                  Add to Package
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* FAQ */}
-        <div className="mb-16">
-          <h2 className="text-2xl font-bold mb-8 text-primary text-center">Frequently Asked Questions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[
-              {
-                q: 'What is included in the base price?',
-                a: 'All government filing fees, registered agent service for 1 year, EIN/BN registration, and complete document preparation.'
-              },
-              {
-                q: 'Are there any hidden fees?',
-                a: 'No. Our pricing is all-inclusive. The price you see is the price you pay.'
-              },
-              {
-                q: 'How long does the process take?',
-                a: 'US LLCs: 3-5 business days. Canada Corporations: 5-7 business days. Expedited processing available.'
-              },
-              {
-                q: 'Do I need to be a US/Canadian resident?',
-                a: 'No. We help non-residents form companies without requiring local residency or presence.'
-              }
-            ].map((faq, index) => (
-              <div key={index} className="bg-white rounded-xl p-6 shadow-card">
-                <h3 className="font-bold text-primary mb-3">{faq.q}</h3>
-                <p className="text-gray-600">{faq.a}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* Final CTA */}
         <div className="text-center">
           <div className="bg-gradient-to-r from-primary to-accent rounded-2xl p-8 text-white mb-8">
-            <h3 className="text-2xl font-bold mb-4">Need a Custom Solution?</h3>
+            <h3 className="text-2xl font-bold mb-4">Need a Custom Solution for {countryData.name}?</h3>
             <p className="mb-6 max-w-2xl mx-auto">
-              We offer customized packages for specific needs. Contact us for a personalized quote tailored to your business requirements.
+              We offer customized packages for specific needs in {countryData.name}. Contact us for a personalized quote.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
